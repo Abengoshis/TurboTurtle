@@ -46,6 +46,9 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\scrBuoyancy.cs" />
+     <Compile Include="Assets\Scripts\scrPlayer.cs" />
+     <Compile Include="Assets\Scripts\scrWaves.cs" />
      <Compile Include="Assets\Scripts\scrWorldScroll.cs" />
      <None Include="Assets\Standard Assets\Skyboxes\_skybox info.txt" />
      <None Include="Assets\Standard Assets\Water (Basic)\Sources\Shaders\FX-Water Simple.shader" />

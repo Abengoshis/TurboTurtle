@@ -1,8 +1,12 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace />
-  <MonoDevelop.Ide.Workbench ActiveDocument="..\GitHub\RiverOfDoubt\RiverOfDoubt\Assets\Scripts\scrPlayer.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\scrPlayer.cs">
     <Files>
-      <File FileName="..\GitHub\RiverOfDoubt\RiverOfDoubt\Assets\Scripts\scrPlayer.cs" Line="129" Column="37" />
+      <File FileName="Assets\Scripts\scrPlayer.cs" Line="6" Column="21" />
+      <File FileName="Assets\Scripts\scrWaves.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\scrWorldScroll.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\scrPlayer.cs" Line="6" Column="21" />
+      <File FileName="Assets\Scripts\scrBuoyancy.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
