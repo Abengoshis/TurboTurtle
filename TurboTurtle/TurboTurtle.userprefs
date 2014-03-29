@@ -1,12 +1,12 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\scrPlayer.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\scrSpawner.cs">
     <Files>
-      <File FileName="Assets\Scripts\scrPlayer.cs" Line="6" Column="21" />
-      <File FileName="Assets\Scripts\scrWaves.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\scrWorldScroll.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\scrPlayer.cs" Line="6" Column="21" />
-      <File FileName="Assets\Scripts\scrBuoyancy.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\scrBuoyancy.cs" Line="25" Column="61" />
+      <File FileName="Assets\Scripts\scrPlayer.cs" Line="165" Column="143" />
+      <File FileName="Assets\Scripts\scrWorldScroll.cs" Line="20" Column="5" />
+      <File FileName="Assets\Scripts\scrWaves.cs" Line="10" Column="37" />
+      <File FileName="Assets\Scripts\scrSpawner.cs" Line="24" Column="77" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

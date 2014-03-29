@@ -48,6 +48,7 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\scrBuoyancy.cs" />
      <Compile Include="Assets\Scripts\scrPlayer.cs" />
+     <Compile Include="Assets\Scripts\scrSpawner.cs" />
      <Compile Include="Assets\Scripts\scrWaves.cs" />
      <Compile Include="Assets\Scripts\scrWorldScroll.cs" />
      <None Include="Assets\Standard Assets\Skyboxes\_skybox info.txt" />

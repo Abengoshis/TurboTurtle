@@ -6,8 +6,8 @@ using System.Collections;
 
 public class scrWaves : MonoBehaviour
 {
-	private float waveSpeed = 2;
-	private float waveHeight = 5;
+	private static float waveSpeed = 2;
+	private static float waveHeight = 1;
 	private Mesh mesh;
 	
 	// Use this for initialization
@@ -25,10 +25,10 @@ public class scrWaves : MonoBehaviour
 		// Undulate each vertex by an amount dependant on their x and z position (making the waves horizontal).
 		for (int i = 0; i < vertices.Length; i++)
 		{
-			float xWave = Mathf.Sin (vertices[i].x / mesh.bounds.size.x * Mathf.PI * 2);
-			float zWave = Mathf.Sin (vertices[i].z / mesh.bounds.size.z * Mathf.PI * 2);
+			float xWave = vertices[i].x / mesh.bounds.size.x;
+			float zWave = vertices[i].z / mesh.bounds.size.z;
 
-			vertices[i].y = waveHeight * Mathf.Sin (Time.time * waveSpeed * xWave + zWave);
+			vertices[i].y = waveHeight * Mathf.Sin (Time.time * waveSpeed + (xWave + zWave) * Mathf.PI * 2);
 		}
 		
 		// Set the vertices back to the mesh and recalculate the normals.
@@ -39,5 +39,7 @@ public class scrWaves : MonoBehaviour
 		MeshCollider meshCollider = GetComponent<MeshCollider>();
 		meshCollider.sharedMesh = null;
 		meshCollider.sharedMesh = mesh;	// Set the mesh after nullifying it so the vertices will be forced to update. (This is just how Unity works.)
+
+		this.renderer.material.mainTextureOffset += new Vector2(0.02f, -0.01f) * Time.deltaTime;
 	}
 }

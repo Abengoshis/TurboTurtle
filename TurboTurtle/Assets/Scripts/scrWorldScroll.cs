@@ -17,9 +17,8 @@ using System.Collections;
 /// </summary>
 public class scrWorldScroll : MonoBehaviour
 {
-	public static float ScrollSpeed = 10;		// The speed that the world scrolls backwards at.
 	public const float Z_INSTANTIATE = 500;	// The z value to instantiate objects at.
-	public const float Z_DESTROY = 0;			// The z value to destroy objects at.
+	public const float Z_DESTROY = 0;		// The z value to destroy objects at.
 
 	public bool Loop = false;	// When behind the field of fiew: True = loop. False = destroy.
 
@@ -32,8 +31,8 @@ public class scrWorldScroll : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		// Move this object backwards by the scroll speed.
-		this.transform.Translate(0, 0, -ScrollSpeed * Time.deltaTime, Space.World);
+		// Move this object backwards by the speed of the player.
+		this.transform.Translate(0, 0, -scrPlayer.Speed * Time.deltaTime, Space.World);
 
 		// Check if this object has gone entirely out of view.
 		if (this.collider.bounds.max.z < Z_DESTROY)
@@ -42,7 +41,7 @@ public class scrWorldScroll : MonoBehaviour
 			if (Loop == false)
 			{
 				// Destroy the object.
-				Destroy (this);
+				Destroy (this.gameObject);
 			}
 			else
 			{
