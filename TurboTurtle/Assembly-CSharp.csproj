@@ -47,16 +47,21 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\scrBuoyancy.cs" />
+     <Compile Include="Assets\Scripts\scrFireball.cs" />
+     <Compile Include="Assets\Scripts\scrOilRig.cs" />
      <Compile Include="Assets\Scripts\scrPlayer.cs" />
      <Compile Include="Assets\Scripts\scrSpawner.cs" />
      <Compile Include="Assets\Scripts\scrWaves.cs" />
      <Compile Include="Assets\Scripts\scrWorldScroll.cs" />
+     <None Include="Assets\Standard Assets\Particles\Sources\Shaders\Particle Alpha Blend (Queue +100).shader" />
      <None Include="Assets\Standard Assets\Skyboxes\_skybox info.txt" />
      <None Include="Assets\Standard Assets\Water (Basic)\Sources\Shaders\FX-Water Simple.shader" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
       <Project>{BD96AD47-C511-FD30-97A6-8F0CF72268F1}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
+    <ProjectReference Include="Assembly-UnityScript-firstpass.unityproj">
+      <Project>{2F5FCACC-550C-175D-1F78-477A6271AE86}</Project>      <Name>Assembly-UnityScript-firstpass</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

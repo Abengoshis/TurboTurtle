@@ -47,12 +47,18 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\scrBuoyancy.cs" />
+     <Compile Include="Assets\Scripts\scrFireball.cs" />
+     <Compile Include="Assets\Scripts\scrOilRig.cs" />
      <Compile Include="Assets\Scripts\scrPlayer.cs" />
      <Compile Include="Assets\Scripts\scrSpawner.cs" />
      <Compile Include="Assets\Scripts\scrWaves.cs" />
      <Compile Include="Assets\Scripts\scrWorldScroll.cs" />
+     <None Include="Assets\Standard Assets\Particles\Sources\Shaders\Particle Alpha Blend (Queue +100).shader" />
      <None Include="Assets\Standard Assets\Skyboxes\_skybox info.txt" />
      <None Include="Assets\Standard Assets\Water (Basic)\Sources\Shaders\FX-Water Simple.shader" />
+ <Reference Include="Assembly-UnityScript-firstpass">
+ <HintPath>Library\ScriptAssemblies\Assembly-UnityScript-firstpass.dll</HintPath>
+ </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Assembly-CSharp-firstpass-vs.csproj">

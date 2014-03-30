@@ -9,14 +9,14 @@ public class scrPlayer : MonoBehaviour
 	public static float TimeFactor { get { return Mathf.Min (TimeSinceStart / TIME_CAP, 1.0f); } }
 
 	public static float DistanceSinceStart { get; private set; }
-	public const float DISTANCE_CAP = 1000.0f;
+	public const float DISTANCE_CAP = 3000.0f;
 	public static float DistanceFactor { get { return Mathf.Min (DistanceSinceStart / DISTANCE_CAP, 1.0f); } }
 
 	// Scroll speed properties.
 	public static float Speed { get; private set; }		// The speed that the world scrolls backwards at.
 	public static float ScrollSpeed { get; private set; }	// The target speed that the speed accelerates to.
-	private const float SCROLL_SPEED_MIN = 10;
-	private const float SCROLL_SPEED_MAX = 60;
+	public const float SCROLL_SPEED_MIN = 10;
+	public const float SCROLL_SPEED_MAX = 40;
 
 	// Acceleration properties.
 	public static float Acceleration { get; private set; }
@@ -57,6 +57,7 @@ public class scrPlayer : MonoBehaviour
 	private float health = 100;
 
 	private bool diving = false;
+	private bool diveInputPressed = false;
 	private float diveTransitionTimer = 0;
 	private const float DIVE_DEPTH = 3f;
 	private const float DIVE_TRANSITION_DURATION = 1.0f;
@@ -74,10 +75,18 @@ public class scrPlayer : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		// Interpolate the scroll speed and acceleration of the player between the minimum and the maximum over 5 minutes.
-		Acceleration = Mathf.Lerp (ACCELERATION_MIN, ACCELERATION_MAX, DistanceFactor);
-		ScrollSpeed = Mathf.Lerp (SCROLL_SPEED_MIN, SCROLL_SPEED_MAX, DistanceFactor);
-		strafe = STRAFE_NORMAL;
+		if (Input.GetAxis ("Dive") != 0)
+		{
+			if (diveInputPressed == false)
+			{
+				diving = !diving;
+				diveInputPressed = true;
+			}
+		}
+		else
+		{
+			diveInputPressed = false;
+		}
 
 		if (flyingBuff == true)
 		{
@@ -95,6 +104,8 @@ public class scrPlayer : MonoBehaviour
 			Acceleration *= slow;
 			strafe *= slow;
 			health -= dot;
+
+			Debug.Log (debrisDebuffs);
 		}
 
 		if (fireDebuff == true)
@@ -167,14 +178,19 @@ public class scrPlayer : MonoBehaviour
 		
 		// Move the camera to keep the player at the bottom of the screen.
 		Camera.main.transform.position = new Vector3(Camera.main.transform.position.x,
-		                                             Mathf.Lerp (Camera.main.transform.position.y, this.transform.root.position.y + 4, 0.2f),
-		                                             Camera.main.transform.position.z);
+		                                             Mathf.Lerp (Camera.main.transform.position.y, this.transform.root.position.y + 7.5f, 0.2f),
+		                                             Mathf.SmoothStep (-4.5f, -6.0f, diveTransitionTimer / DIVE_TRANSITION_DURATION));
 
 		// Count the time since the creation of this object.
 		TimeSinceStart += Time.deltaTime;
 
 		// Increase the distance travelled by the speed.
 		DistanceSinceStart += Speed * Time.deltaTime;
+
+		// Interpolate the scroll speed and acceleration of the player between the minimum and the maximum over 5 minutes.
+		Acceleration = Mathf.Lerp (ACCELERATION_MIN, ACCELERATION_MAX, DistanceFactor);
+		ScrollSpeed = Mathf.Lerp (SCROLL_SPEED_MIN, SCROLL_SPEED_MAX, DistanceFactor);
+		strafe = STRAFE_NORMAL;
 	}
 
 	void OnCollisionEnter(Collision collision)
@@ -200,12 +216,10 @@ public class scrPlayer : MonoBehaviour
 			{
 				oilDebuff = true;
 				oilBurnTimer = 0;
-				
 			}
 			else if (specific == "Fire")
 			{
 				fireDebuff = true;
-				
 			}
 			else if (specific == "Debris")
 			{
@@ -248,7 +262,7 @@ public class scrPlayer : MonoBehaviour
 		trigger.transform.root.GetComponent<scrWorldScroll>().Loop = false;
 
 		// Set the colliders of all children to the Ignore Player layer.
-		foreach (Transform t in this.GetComponentsInChildren<Transform>())
+		foreach (Transform t in trigger.transform.root.GetComponentsInChildren<Transform>())
 			t.gameObject.layer = LayerMask.NameToLayer("Ignore Player");
 
 	}

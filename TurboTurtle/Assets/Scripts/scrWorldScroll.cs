@@ -18,7 +18,7 @@ using System.Collections;
 public class scrWorldScroll : MonoBehaviour
 {
 	public const float Z_INSTANTIATE = 500;	// The z value to instantiate objects at.
-	public const float Z_DESTROY = 0;		// The z value to destroy objects at.
+	public const float Z_DESTROY = -100;		// The z value to destroy objects at.
 
 	public bool Loop = false;	// When behind the field of fiew: True = loop. False = destroy.
 
