@@ -4,16 +4,23 @@ using System.Collections.Generic;
 
 public class scrSpawner : MonoBehaviour
 {
-	public GameObject DebrisPrefab;
+	public GameObject SurfaceDebrisPrefab;
+	public GameObject UnderwaterDebrisPrefab;
 	public GameObject OilPrefab;
 	public GameObject FirePrefab;
 	public GameObject OilRigPrefab;
 	public GameObject OneBoatOneNetPrefab;
 	public GameObject TwoBoatsOneNetPrefab;
+	public GameObject SeaweedPrefab;
+	public GameObject CleanerFishPrefab;
+	public GameObject FlyingFishPrefab;
+
+	public GameObject[] SceneryPrefabs;
+	public GameObject[] UnderwaterPrefabs;
 
 	private float spawnTimer = 0;
 	private float spawnDelay = 0;
-	private const float SPAWN_DELAY_MIN = 1.0f;
+	private const float SPAWN_DELAY_MIN = 3.0f;
 	private const float SPAWN_DELAY_MAX = 10.0f;
 	private const float SPAWN_DELAY_VARIANCE = 1.0f;
 
@@ -23,13 +30,17 @@ public class scrSpawner : MonoBehaviour
 
 	private int spawnsUntilScenery;
 	private const int SCENERY_WAIT_MIN = 3;
-	private const int SCENERY_WAIT_MAX = 6;
+	private const int SCENERY_WAIT_MAX = 8;
+
+	private int spawnsUntilUnderwater;
+	private const int UNDERWATER_WAIT_MIN = 1;
+	private const int UNDERWATER_WAIT_MAX = 3;
 
 	private const int SPAWN_AMOUNT_MIN = 1;
 	private const int SPAWN_AMOUNT_MAX = 4;
 	private const int SPAWN_AMOUNT_VARIANCE = 2;
 
-	public const int NUMBER_OF_LANES = 5;
+	public const int NUMBER_OF_LANES = 4;
 	private static Vector3[] lanes = new Vector3[NUMBER_OF_LANES];
 	private static Vector3[] boatLanes = new Vector3[2];
 	private static Vector3[] rigLanes = new Vector3[4];
@@ -65,6 +76,8 @@ public class scrSpawner : MonoBehaviour
 		}
 
 		spawnsUntilSpecial = SPECIAL_WAIT_MIN;
+		spawnsUntilScenery = SCENERY_WAIT_MIN;
+		spawnsUntilUnderwater = UNDERWATER_WAIT_MIN;
 	}
 	
 	// Update is called once per frame
@@ -97,6 +110,13 @@ public class scrSpawner : MonoBehaviour
 					spawnsUntilScenery = Random.Range (SCENERY_WAIT_MIN, SCENERY_WAIT_MAX + 1);
 				}
 			}
+
+			--spawnsUntilUnderwater;
+			if (spawnsUntilUnderwater == 0)
+			{
+				SpawnUnderwater();
+				spawnsUntilUnderwater = Random.Range (UNDERWATER_WAIT_MIN, UNDERWATER_WAIT_MAX + 1);
+			}
 		}
 	}
 
@@ -118,7 +138,19 @@ public class scrSpawner : MonoBehaviour
 			int s = Random.Range (0, spawnPoints.Count);
 
 			// Instantiate an object at the spawn point.
-			Instantiate (DebrisPrefab, spawnPoints[s] + new Vector3(0, 0, Random.Range (-2f, 2f)), Quaternion.identity);
+			int item = Random.Range (0, 4);
+			switch (item)
+			{
+			case 0:
+				Instantiate (SurfaceDebrisPrefab, spawnPoints[s] + new Vector3(0, 0, Random.Range (-2f, 2f)), Quaternion.identity);
+				break;
+			case 1:
+				Instantiate (UnderwaterDebrisPrefab, spawnPoints[s] + new Vector3(0, 0, Random.Range (-2f, 2f)), Quaternion.identity);
+				break;
+			case 2:
+				Instantiate(SeaweedPrefab, spawnPoints[s] + new Vector3(0, 0, Random.Range (-2f, 2f)), Quaternion.identity);
+				break;
+			}
 
 			// Remove the spawn point from the list so objects don't overlap.
 			spawnPoints.RemoveAt (i);
@@ -157,8 +189,23 @@ public class scrSpawner : MonoBehaviour
 		Debug.Log ("Spawning special object.");
 	}
 
+	void SpawnUnderwater()
+	{
+		int prefab = Random.Range (0, UnderwaterPrefabs.Length);
+		Instantiate (UnderwaterPrefabs[prefab], new Vector3(Random.Range (-300f, 300f), UnderwaterPrefabs[prefab].transform.position.y, scrWorldScroll.Z_INSTANTIATE), Quaternion.identity);
+		
+		Debug.Log ("Spawning underwater object.");
+	}
+
 	void SpawnScenery()
 	{
+		int prefab = Random.Range (0, SceneryPrefabs.Length);
+		GameObject scenery = (GameObject)Instantiate (SceneryPrefabs[prefab], new Vector3(Random.Range (-20f, 20f), SceneryPrefabs[prefab].transform.position.y, scrWorldScroll.Z_INSTANTIATE + Random.Range (0, 20f)), Quaternion.identity);
 
+		// Chance to flip scenery.
+		if (Random.Range (0, 2) == 0)
+			scenery.transform.localScale = new Vector3(-1, 1, 1);
+
+		Debug.Log ("Spawning underwater object.");
 	}
 }

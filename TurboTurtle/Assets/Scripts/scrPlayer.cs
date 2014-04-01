@@ -9,7 +9,7 @@ public class scrPlayer : MonoBehaviour
 	public static float TimeFactor { get { return Mathf.Min (TimeSinceStart / TIME_CAP, 1.0f); } }
 
 	public static float DistanceSinceStart { get; private set; }
-	public const float DISTANCE_CAP = 3000.0f;
+	public const float DISTANCE_CAP = 300.0f;
 	public static float DistanceFactor { get { return Mathf.Min (DistanceSinceStart / DISTANCE_CAP, 1.0f); } }
 
 	// Scroll speed properties.
@@ -37,7 +37,7 @@ public class scrPlayer : MonoBehaviour
 
 	private byte debrisDebuffs = 0;
 	private const byte DEBRIS_STACKS_MAX = 3;
-	private const float DEBRIS_SLOW = 0.9f;
+	private const float DEBRIS_SLOW = 0.8f;
 	private const float DEBRIS_DOT = 0.2f;
 
 	private bool oilDebuff = false;
@@ -58,9 +58,9 @@ public class scrPlayer : MonoBehaviour
 
 	private bool diving = false;
 	private bool diveInputPressed = false;
-	private float diveTransitionTimer = 0;
-	private const float DIVE_DEPTH = 3f;
-	private const float DIVE_TRANSITION_DURATION = 1.0f;
+	private float diveTransitionTimer = 1;
+	private const float DIVE_DEPTH = 10f;
+	private const float DIVE_TRANSITION_DURATION = 2.0f;
 	private const float DIVE_STRAFE_SLOW = 0.1f;
 
 	// Use this for initialization
@@ -77,7 +77,7 @@ public class scrPlayer : MonoBehaviour
 	{
 		if (Input.GetAxis ("Dive") != 0)
 		{
-			if (diveInputPressed == false)
+			if (diveInputPressed == false && diveTransitionTimer == 0 || diveTransitionTimer == DIVE_TRANSITION_DURATION)
 			{
 				diving = !diving;
 				diveInputPressed = true;
@@ -104,8 +104,6 @@ public class scrPlayer : MonoBehaviour
 			Acceleration *= slow;
 			strafe *= slow;
 			health -= dot;
-
-			Debug.Log (debrisDebuffs);
 		}
 
 		if (fireDebuff == true)
@@ -118,11 +116,22 @@ public class scrPlayer : MonoBehaviour
 				// Burn away the oil over time.
 				oilBurnTimer += Time.deltaTime;
 				if (oilBurnTimer >= OIL_BURN_DURATION)
+				{
 					oilDebuff = false;
+
+					this.transform.Find ("OilDebuff").gameObject.SetActive(false);
+				}
 
 			}
 			else
 			{
+				if (diveTransitionTimer == DIVE_TRANSITION_DURATION)
+				{
+					fireDebuff = false;
+
+					this.transform.Find ("FireDebuff").gameObject.SetActive(false);
+				}
+
 				// Take damage over time.
 				health -= FIRE_DOT * Time.deltaTime;
 			}
@@ -169,7 +178,7 @@ public class scrPlayer : MonoBehaviour
 		}
 		
 		// Move the player left or right.
-		this.rigidbody.velocity = new Vector3(Input.GetAxis("Horizontal") * Mathf.Lerp (strafe, strafe * DIVE_STRAFE_SLOW, diveTransitionTimer / DIVE_TRANSITION_DURATION), 0, 0);
+		this.transform.root.rigidbody.velocity = new Vector3(Input.GetAxis("Horizontal") * Mathf.Lerp (strafe, strafe * DIVE_STRAFE_SLOW, diveTransitionTimer / DIVE_TRANSITION_DURATION), 0, 0);
 
 		// Move the player up or down.
 		this.transform.position = new Vector3(this.transform.position.x,
@@ -179,7 +188,7 @@ public class scrPlayer : MonoBehaviour
 		// Move the camera to keep the player at the bottom of the screen.
 		Camera.main.transform.position = new Vector3(Camera.main.transform.position.x,
 		                                             Mathf.Lerp (Camera.main.transform.position.y, this.transform.root.position.y + 7.5f, 0.2f),
-		                                             Mathf.SmoothStep (-4.5f, -6.0f, diveTransitionTimer / DIVE_TRANSITION_DURATION));
+		                                             Mathf.SmoothStep (-7f, -16.5f, diveTransitionTimer / DIVE_TRANSITION_DURATION));
 
 		// Count the time since the creation of this object.
 		TimeSinceStart += Time.deltaTime;
@@ -216,15 +225,23 @@ public class scrPlayer : MonoBehaviour
 			{
 				oilDebuff = true;
 				oilBurnTimer = 0;
+
+				this.transform.Find ("OilDebuff").gameObject.SetActive(true);
 			}
-			else if (specific == "Fire")
+			else if (specific == "Fire" || specific == "Fireball")
 			{
 				fireDebuff = true;
+
+				this.transform.Find ("FireDebuff").gameObject.SetActive(true);
 			}
-			else if (specific == "Debris")
+			else if (specific == "SurfaceDebris" || specific == "UnderwaterDebris")
 			{
 				if (debrisDebuffs < DEBRIS_STACKS_MAX)
+				{
+					this.transform.Find ("DebrisDebuff_" + debrisDebuffs).gameObject.SetActive(true);
+
 					++debrisDebuffs;
+				}
 			}
 
 			Debug.Log ("+ Debuff: " + specific);

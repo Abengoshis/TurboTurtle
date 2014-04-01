@@ -6,8 +6,8 @@ public class scrOilRig : MonoBehaviour
 	public GameObject FireballPrefab;
 
 	private float explodeDistance;
-	private const float EXPLODE_DISTANCE_MIN = 0.75f;
-	private const float EXPLODE_DISTANCE_MAX = 0.9f;
+	private const float EXPLODE_DISTANCE_MIN = 0.3f;
+	private const float EXPLODE_DISTANCE_MAX = 0.4f;
 
 	private int fireballs;
 	private const int FIREBALLS_MIN = 10;

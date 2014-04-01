@@ -10,7 +10,7 @@ public class scrFireball : MonoBehaviour
 		this.rigidbody.velocity = Vector3.up * 40.0f;
 
 		// Add a randomness.
-		this.rigidbody.AddForce(new Vector3(Random.Range (-this.transform.position.x * 25, this.transform.position.x * 7f) * 0.02f, Random.Range (0f, 30f), Random.Range(-10f, 11f)), ForceMode.Impulse);
+		this.rigidbody.AddForce(new Vector3(Random.Range (-this.transform.position.x * 15, this.transform.position.x * 7f) * 0.02f, Random.Range (0f, 30f), Random.Range(-10f, 11f)), ForceMode.Impulse);
 	}
 	
 	// Update is called once per frame

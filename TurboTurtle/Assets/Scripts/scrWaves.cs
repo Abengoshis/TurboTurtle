@@ -7,7 +7,7 @@ using System.Collections;
 public class scrWaves : MonoBehaviour
 {
 	private static float waveSpeed = 2;
-	private static float waveHeight = 1;
+	private static float waveHeight = 2;
 	private Mesh mesh;
 	
 	// Use this for initialization
@@ -39,7 +39,5 @@ public class scrWaves : MonoBehaviour
 		MeshCollider meshCollider = GetComponent<MeshCollider>();
 		meshCollider.sharedMesh = null;
 		meshCollider.sharedMesh = mesh;	// Set the mesh after nullifying it so the vertices will be forced to update. (This is just how Unity works.)
-
-		this.renderer.material.mainTextureOffset += new Vector2(0.02f, -0.01f) * Time.deltaTime;
 	}
 }

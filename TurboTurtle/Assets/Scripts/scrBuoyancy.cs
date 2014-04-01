@@ -21,11 +21,14 @@ public class scrBuoyancy : MonoBehaviour
 			// Loop through all children.
 			for (int i = 0; i < children.Length; ++i)
 			{
-				// Cast a ray downwards from an area far above the water to get the top of the water's waves.
-				if (Physics.Raycast(children[i].position + Vector3.up * 20, Vector3.down, out hit, 100, 1 << LayerMask.NameToLayer("Water")))
+				if (children[i] == this.transform || children[i].parent == this.transform)
 				{
-					// Place the object's centre on top of the water.
-					children[i].position = hit.point;
+					// Cast a ray downwards from an area far above the water to get the top of the water's waves.
+					if (Physics.Raycast(children[i].position + Vector3.up * 20, Vector3.down, out hit, 100, 1 << LayerMask.NameToLayer("Water")))
+					{
+						// Place the object's centre on top of the water.
+						children[i].position = hit.point;
+					}
 				}
 			}
 		}

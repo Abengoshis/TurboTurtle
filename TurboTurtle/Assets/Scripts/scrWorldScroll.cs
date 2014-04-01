@@ -17,7 +17,7 @@ using System.Collections;
 /// </summary>
 public class scrWorldScroll : MonoBehaviour
 {
-	public const float Z_INSTANTIATE = 500;	// The z value to instantiate objects at.
+	public const float Z_INSTANTIATE = 1000;	// The z value to instantiate objects at.
 	public const float Z_DESTROY = -100;		// The z value to destroy objects at.
 
 	public bool Loop = false;	// When behind the field of fiew: True = loop. False = destroy.
@@ -35,7 +35,7 @@ public class scrWorldScroll : MonoBehaviour
 		this.transform.Translate(0, 0, -scrPlayer.Speed * Time.deltaTime, Space.World);
 
 		// Check if this object has gone entirely out of view.
-		if (this.collider.bounds.max.z < Z_DESTROY)
+		if (collider == null && this.transform.position.z < Z_DESTROY || collider != null && this.collider.bounds.max.z < Z_DESTROY)
 		{
 			// Check if the object should be destroyed or looped. Most frequent case: Loop = false.
 			if (Loop == false)
