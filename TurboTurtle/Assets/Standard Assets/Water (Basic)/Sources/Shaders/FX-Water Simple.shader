@@ -57,7 +57,7 @@ ENDCG
 // Fragment program
 
 Subshader {
-	Tags { "Queue" = "Transparent" }
+	Tags { "Queue" = "Transparent-1" }
 	Blend SrcAlpha OneMinusSrcAlpha
 	ColorMask RGB
 	Pass {

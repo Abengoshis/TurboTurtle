@@ -39,33 +39,28 @@
 	<Reference Include="System.Core" />
 	<Reference Include="System.Xml.Linq" />
 	<Reference Include="UnityEngine">
-	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	  <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
 	</Reference>
 	<Reference Include="UnityEditor">
-	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	  <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\scrBuoyancy 1.cs" />
      <Compile Include="Assets\Scripts\scrBuoyancy.cs" />
-     <Compile Include="Assets\Scripts\scrFireball 1.cs" />
+     <Compile Include="Assets\Scripts\scrCleanerFish.cs" />
      <Compile Include="Assets\Scripts\scrFireball.cs" />
      <Compile Include="Assets\Scripts\scrFlyingFish.cs" />
-     <Compile Include="Assets\Scripts\scrOilRig 1.cs" />
      <Compile Include="Assets\Scripts\scrOilRig.cs" />
-     <Compile Include="Assets\Scripts\scrPlayer 1.cs" />
      <Compile Include="Assets\Scripts\scrPlayer.cs" />
-     <Compile Include="Assets\Scripts\scrSpawner 1.cs" />
      <Compile Include="Assets\Scripts\scrSpawner.cs" />
-     <Compile Include="Assets\Scripts\scrWaves 1.cs" />
      <Compile Include="Assets\Scripts\scrWaves.cs" />
-     <Compile Include="Assets\Scripts\scrWorldScroll 1.cs" />
      <Compile Include="Assets\Scripts\scrWorldScroll.cs" />
      <None Include="Assets\Assets\Models\Sources.txt" />
      <None Include="Assets\Standard Assets\Particles\Sources\Shaders\Particle Alpha Blend (Queue +100).shader" />
      <None Include="Assets\Standard Assets\Water (Basic)\Sources\Shaders\FX-Water Simple Opaque.shader" />
      <None Include="Assets\Standard Assets\Skyboxes\_skybox info.txt" />
      <None Include="Assets\Standard Assets\Water (Basic)\Sources\Shaders\FX-Water Simple.shader" />
+     <None Include="Assets\Materials\WaterShader.shader" />
  <Reference Include="Assembly-UnityScript-firstpass">
  <HintPath>Library\ScriptAssemblies\Assembly-UnityScript-firstpass.dll</HintPath>
  </Reference>
