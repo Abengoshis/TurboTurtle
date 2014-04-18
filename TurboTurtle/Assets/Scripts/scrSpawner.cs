@@ -14,14 +14,16 @@ public class scrSpawner : MonoBehaviour
 	public GameObject SeaweedPrefab;
 	public GameObject CleanerFishPrefab;
 	public GameObject FlyingFishPrefab;
+	public GameObject TurtlePrefab;
 	
 	public GameObject[] SceneryPrefabs;
 	public GameObject[] UnderwaterPrefabs;
+	private Transform[] underwaterPool = new Transform[400];
 	
 	private float spawnTimer = 0;
 	private float spawnDelay = 0;
-	private const float SPAWN_DELAY_MIN = 3.0f;
-	private const float SPAWN_DELAY_MAX = 6.0f;
+	private const float SPAWN_DELAY_MIN = 2.0f;
+	private const float SPAWN_DELAY_MAX = 4.0f;
 	private const float SPAWN_DELAY_VARIANCE = 1.0f;
 	
 	private int spawnsUntilSpecial;
@@ -32,10 +34,6 @@ public class scrSpawner : MonoBehaviour
 	private const int SCENERY_WAIT_MIN = 3;
 	private const int SCENERY_WAIT_MAX = 8;
 	
-	private int spawnsUntilUnderwater;
-	private const int UNDERWATER_WAIT_MIN = 1;
-	private const int UNDERWATER_WAIT_MAX = 3;
-	
 	private const int SPAWN_AMOUNT_MIN = 1;
 	private const int SPAWN_AMOUNT_MAX = 4;
 	private const int SPAWN_AMOUNT_VARIANCE = 2;
@@ -44,7 +42,12 @@ public class scrSpawner : MonoBehaviour
 	private static Vector3[] lanes = new Vector3[NUMBER_OF_LANES];
 	private static Vector3[] boatLanes = new Vector3[2];
 	private static Vector3[] rigLanes = new Vector3[4];
-	
+
+	public static float GetLaneX(int lane)
+	{
+		return lanes[lane].x;
+	}
+
 	// Use this for initialization
 	void Start ()
 	{
@@ -77,7 +80,17 @@ public class scrSpawner : MonoBehaviour
 		
 		spawnsUntilSpecial = SPECIAL_WAIT_MIN;
 		spawnsUntilScenery = SCENERY_WAIT_MIN;
-		spawnsUntilUnderwater = UNDERWATER_WAIT_MIN;
+
+		// Generate a pool of underwater objects.
+		for (int i = 0; i < underwaterPool.Length; ++i)
+		{
+			underwaterPool[i] = ((GameObject)Instantiate (UnderwaterPrefabs[Random.Range (0, UnderwaterPrefabs.Length)], new Vector3(Random.Range(-499, 500), 0, Random.Range(0, 1000)), Random.rotation)).transform;
+			underwaterPool[i].localScale = Random.Range (0.2f, 1f) * Vector3.one;
+
+			RaycastHit hit;
+			Physics.Raycast(new Ray(new Vector3(underwaterPool[i].position.x, -30, underwaterPool[i].position.z), Vector3.down), out hit, 100, 1 << LayerMask.NameToLayer("Water"));
+			underwaterPool[i].position = hit.point;
+		}
 	}
 	
 	// Update is called once per frame
@@ -87,7 +100,7 @@ public class scrSpawner : MonoBehaviour
 		spawnTimer += Time.deltaTime * scrPlayer.Speed / scrPlayer.SCROLL_SPEED_MIN;
 		if (spawnTimer > spawnDelay)
 		{
-			SpawnStandard();
+			StartCoroutine("SpawnStandard");
 			
 			// Set the spawn delay to the delay dictated by the distance, with a random variance, clamped to the minimum and maximum amounts. Note that the minimum delay is the final value reached, rather than the maximum delay, causing the frequency of lanes to become smaller.
 			spawnDelay = Mathf.Clamp (Mathf.Lerp (SPAWN_DELAY_MAX, SPAWN_DELAY_MIN, scrPlayer.DistanceFactor) + Random.Range (-SPAWN_DELAY_VARIANCE, SPAWN_DELAY_VARIANCE), SPAWN_DELAY_MIN, SPAWN_DELAY_MAX);
@@ -110,17 +123,33 @@ public class scrSpawner : MonoBehaviour
 					spawnsUntilScenery = Random.Range (SCENERY_WAIT_MIN, SCENERY_WAIT_MAX + 1);
 				}
 			}
-			
-			--spawnsUntilUnderwater;
-			if (spawnsUntilUnderwater == 0)
+		}
+
+		ManageUnderwaterPool();
+	}
+
+	void ManageUnderwaterPool()
+	{
+		foreach (Transform u in underwaterPool)
+		{
+			u.Translate(0, 0, -scrPlayer.Speed * Time.deltaTime, Space.World);
+
+			// Loop the object but also randomise its position on the sea floor and raycast down to put it on the ground.
+			if (u.position.z < scrWorldScroll.Z_DESTROY)
 			{
-				SpawnUnderwater();
-				spawnsUntilUnderwater = Random.Range (UNDERWATER_WAIT_MIN, UNDERWATER_WAIT_MAX + 1);
+				u.position = new Vector3(Random.Range(-499, 500), -40, scrWorldScroll.Z_INSTANTIATE);
+				u.rotation = Random.rotation;
+				u.localScale = Random.Range (0.2f, 1f) * Vector3.one;
+				RaycastHit hit;
+				if (Physics.Raycast(new Ray(new Vector3(u.position.x, -30, u.position.z), Vector3.down), out hit, 100, 1 << LayerMask.NameToLayer("Water")))
+					u.position = hit.point;
+				else
+					Debug.Log ("what");
 			}
 		}
 	}
 	
-	void SpawnStandard()
+	IEnumerator SpawnStandard()
 	{
 		// Set the amount to spawn to a random amount between the amount dictated by the distance, with a random variance, clamped to the minimum and maximum amounts.
 		int spawnAmount = Random.Range (SPAWN_AMOUNT_MIN, Mathf.Clamp(Mathf.RoundToInt (Mathf.Lerp (SPAWN_AMOUNT_MIN, SPAWN_AMOUNT_MAX, scrPlayer.DistanceFactor)) + Random.Range(-SPAWN_AMOUNT_VARIANCE, SPAWN_AMOUNT_VARIANCE + 1), SPAWN_AMOUNT_MIN, SPAWN_AMOUNT_MAX) + 1);
@@ -139,37 +168,50 @@ public class scrSpawner : MonoBehaviour
 		{
 			// Find a random spawn point within the spawn point list.
 			int s = Random.Range (0, spawnPoints.Count);
-			Vector3 Offset = new Vector3(0, 0, Random.Range (-2.0f, 2.0f));
-			
+			Vector3 offset = new Vector3(0, 0, Random.Range (-2.0f, 2.0f));
+			Quaternion rotation = Quaternion.Euler(0, Random.Range (0f, 360f), 0);
+
 			if (spawnDebrisOnly == true)
 			{
 				// Choose between surface and underwater debris.
 				if (Random.Range (0, 2) == 0)
-					Instantiate (SurfaceDebrisPrefab, spawnPoints [s] + Offset, Quaternion.identity);
+					Instantiate (SurfaceDebrisPrefab, spawnPoints [s] + offset, rotation);
 				else
-					Instantiate (UnderwaterDebrisPrefab, spawnPoints[s] + Offset, Quaternion.identity);
+					Instantiate (UnderwaterDebrisPrefab, spawnPoints[s] + offset, rotation);
 			}
 			else
 			{
-				// Instantiate an object at the spawn point.
-				int item = Random.Range (0, 5);
-				switch (item)
+				// More likely to spawn obstacle than powerup.
+				if (Random.Range (0, 5) < 3)
 				{
-				case 0:
-					Instantiate(FirePrefab, spawnPoints[s] + Offset, Quaternion.identity);
-					break;
-				case 1:
-					Instantiate(OilPrefab, spawnPoints[s] + Offset, Quaternion.identity);
-					break;
-				case 2:
-					Instantiate(SeaweedPrefab, spawnPoints[s] + Offset, Quaternion.identity);
-					break;
-				case 3:
-					Instantiate(CleanerFishPrefab, spawnPoints[s] + Offset, Quaternion.identity);
-					break;
-				case 4:
-					Instantiate(FlyingFishPrefab, spawnPoints[s] + Offset, Quaternion.identity);
-					break;
+					if (Random.Range (0, 2) == 0)
+					{
+						Instantiate(FirePrefab, spawnPoints[s] + offset, rotation);
+					}
+					else
+					{
+						Instantiate(OilPrefab, spawnPoints[s] + offset, rotation);
+					}
+				}
+				else
+				{
+					// Instantiate a powerup at the spawn point.
+					int item = Random.Range (0, 4);
+					switch (item)
+					{
+					case 0:
+						Instantiate(SeaweedPrefab, spawnPoints[s] + offset, rotation);
+						break;
+					case 1:
+						Instantiate(CleanerFishPrefab, spawnPoints[s] + offset, rotation);
+						break;
+					case 2:
+						Instantiate(FlyingFishPrefab, spawnPoints[s] + offset, rotation);
+						break;
+					case 3:
+						Instantiate(TurtlePrefab, spawnPoints[s] + offset, rotation);
+						break;
+					}
 				}
 			}
 			
@@ -178,6 +220,8 @@ public class scrSpawner : MonoBehaviour
 			
 			// Decrement the spawnAmount.
 			--spawnAmount;
+
+			yield return new WaitForSeconds(0.1f);
 		}
 	}
 	
@@ -208,14 +252,6 @@ public class scrSpawner : MonoBehaviour
 		}
 		
 		Debug.Log ("Spawning special object.");
-	}
-	
-	void SpawnUnderwater()
-	{
-		int prefab = Random.Range (0, UnderwaterPrefabs.Length);
-		Instantiate (UnderwaterPrefabs[prefab], new Vector3(Random.Range (-300f, 300f), UnderwaterPrefabs[prefab].transform.position.y, scrWorldScroll.Z_INSTANTIATE), Quaternion.identity);
-		
-		Debug.Log ("Spawning underwater object.");
 	}
 	
 	void SpawnScenery()

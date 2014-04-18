@@ -9,7 +9,7 @@ public class scrPlayer : MonoBehaviour
 	public static float TimeFactor { get { return Mathf.Min (TimeSinceStart / TIME_CAP, 1.0f); } }
 	
 	public static float DistanceSinceStart { get; private set; }
-	public const float DISTANCE_CAP = 3000.0f;
+	public const float DISTANCE_CAP = 2000.0f;
 	public static float DistanceFactor { get { return Mathf.Min (DistanceSinceStart / DISTANCE_CAP, 1.0f); } }
 	
 	// Scroll speed properties.
@@ -29,6 +29,7 @@ public class scrPlayer : MonoBehaviour
 	private bool flyingBuff = false;
 	private float flyingTimer = 0;
 	private const float FLYING_DURATION = 5.0f;
+	private const float FLYING_HEIGHT = 5f;
 	
 	private const float SEAWEED_HEAL = 10.0f;
 	
@@ -47,12 +48,13 @@ public class scrPlayer : MonoBehaviour
 	private const float OIL_SLOW = 0.7f;
 	
 	private bool fireDebuff = false;
-	private const float FIRE_BOOST = 2.0f;
+	private const float FIRE_BOOST = 1.5f;
 	private const float FIRE_DOT = 0.5f;
 	
 	// Turtle properties.
-	private float strafe = 0;	// Horizontal movement.
-	private const float STRAFE_NORMAL = 10;
+	private int lane = 1;
+	private float laneX;
+	private Transform wake;
 	
 	private float health = 100;
 	
@@ -60,17 +62,18 @@ public class scrPlayer : MonoBehaviour
 	private bool diveInputPressed = false;
 	private float diveTransitionTimer = 1;
 	private const float DIVE_DEPTH = 10f;
-	private const float DIVE_TRANSITION_DURATION = 2.0f;
+	private const float DIVE_TRANSITION_DURATION = 1.0f;
 	private const float DIVE_STRAFE_SLOW = 0.1f;
 	
 	// Use this for initialization
 	void Start ()
 	{
-		strafe = STRAFE_NORMAL;
 		Speed = SCROLL_SPEED_MAX;
 		ScrollSpeed = SCROLL_SPEED_MIN;
 		Acceleration = ACCELERATION_MIN;
 		TimeSinceStart = 0;
+		laneX = scrSpawner.GetLaneX(lane);
+		wake = transform.parent.Find ("Wake");
 	}
 	
 	// Update is called once per frame
@@ -91,9 +94,13 @@ public class scrPlayer : MonoBehaviour
 		
 		if (flyingBuff == true)
 		{
+			diving = false;
 			flyingTimer += Time.deltaTime;
 			if (flyingTimer >= FLYING_DURATION)
+			{
 				flyingBuff = false;
+				this.transform.Find ("FlyingBuff").gameObject.SetActive(false);
+			}
 		}
 		
 		if (debrisDebuffs > 0)
@@ -103,7 +110,6 @@ public class scrPlayer : MonoBehaviour
 			
 			ScrollSpeed *= slow;
 			Acceleration *= slow;
-			strafe *= slow;
 			health -= dot;
 		}
 		
@@ -140,7 +146,6 @@ public class scrPlayer : MonoBehaviour
 			// Increase the speed.
 			ScrollSpeed *= FIRE_BOOST;
 			Acceleration *= FIRE_BOOST;
-			strafe *= FIRE_BOOST;
 		}
 		
 		if (oilDebuff == true)
@@ -148,7 +153,6 @@ public class scrPlayer : MonoBehaviour
 			// Decrease the speed.
 			ScrollSpeed *= OIL_SLOW;
 			Acceleration *= OIL_SLOW;
-			strafe *= OIL_SLOW;
 		}
 		
 		if (diving == true)
@@ -179,13 +183,47 @@ public class scrPlayer : MonoBehaviour
 		}
 		
 		// Move the player left or right.
-		this.transform.root.rigidbody.velocity = new Vector3(Input.GetAxis("Horizontal") * Mathf.Lerp (strafe, strafe * DIVE_STRAFE_SLOW, diveTransitionTimer / DIVE_TRANSITION_DURATION), 0, 0);
-		
-		// Move the player up or down.
-		this.transform.position = new Vector3(this.transform.position.x,
-		                                      Mathf.SmoothStep(this.transform.position.y, -DIVE_DEPTH, diveTransitionTimer / DIVE_TRANSITION_DURATION),
-		                                      this.transform.position.z);
-		
+		this.transform.position = Vector3.Lerp(this.transform.position, new Vector3(laneX, this.transform.position.y, this.transform.position.z), 0.2f);
+		wake.position = new Vector3(this.transform.position.x, wake.position.y, wake.position.z);
+
+		if (diving == false)
+		{
+			if (Input.GetButtonDown("Horizontal"))
+			{
+				if (Input.GetAxis("Horizontal") < 0)
+				{
+					if (lane > 0)
+					{
+						--lane;
+						laneX = scrSpawner.GetLaneX(lane);
+					}
+				}
+				else
+				{
+					if (lane < scrSpawner.NUMBER_OF_LANES - 1)
+					{
+						++lane;
+						laneX = scrSpawner.GetLaneX(lane);
+					}
+				}
+			}
+		}
+
+		if (flyingBuff == false)
+		{
+			// Move the player up or down.
+			this.transform.position = new Vector3(this.transform.position.x,
+			                                      Mathf.SmoothStep(this.transform.position.y, -DIVE_DEPTH, diveTransitionTimer / DIVE_TRANSITION_DURATION),
+			                                      this.transform.position.z);
+		}
+		else
+		{
+			// Move the player up or down.
+			this.transform.position = new Vector3(this.transform.position.x,
+			                                      Mathf.SmoothStep(this.transform.position.y, FLYING_HEIGHT, Mathf.Sin (Mathf.PI * flyingTimer / FLYING_DURATION)),
+			                                      this.transform.position.z);
+		}
+
 		// Move the camera to keep the player at the bottom of the screen.
 		Camera.main.transform.position = new Vector3(Camera.main.transform.position.x,
 		                                             Mathf.Lerp (Camera.main.transform.position.y, this.transform.root.position.y + 7.5f, 0.2f),
@@ -200,7 +238,6 @@ public class scrPlayer : MonoBehaviour
 		// Interpolate the scroll speed and acceleration of the player between the minimum and the maximum over 5 minutes.
 		Acceleration = Mathf.Lerp (ACCELERATION_MIN, ACCELERATION_MAX, DistanceFactor);
 		ScrollSpeed = Mathf.Lerp (SCROLL_SPEED_MIN, SCROLL_SPEED_MAX, DistanceFactor);
-		strafe = STRAFE_NORMAL;
 	}
 	
 	void OnCollisionEnter(Collision collision)
@@ -217,47 +254,55 @@ public class scrPlayer : MonoBehaviour
 		
 		if (generic == "Obstacle")
 		{
-			if (specific == "Net")
+			if (shellBuff == true)
 			{
-				Speed *= NET_SLOW;
-				
+				shellBuff = false;
+				this.transform.Find ("ShellBuff").gameObject.SetActive(false);
 			}
-			else if (specific == "Oil")
+			else
 			{
-				oilDebuff = true;
-				oilBurnTimer = 0;
-				
-				this.transform.Find ("OilDebuff").gameObject.SetActive(true);
-			}
-			else if (specific == "Fire" || specific == "Fireball")
-			{
-				fireDebuff = true;
-				
-				this.transform.Find ("FireDebuff").gameObject.SetActive(true);
-			}
-			else if (specific == "Surface Debris" || specific == "Underwater Debris")
-			{
-				if (oilDebuff == true)
+				if (specific == "Net")
 				{
-					if (debrisDebuffs < DEBRIS_STACKS_MAX)
-					{
-						this.transform.Find ("DebrisDebuff_" + debrisDebuffs).gameObject.SetActive(true);
-						
-						++debrisDebuffs;
-					}
+					Speed *= NET_SLOW;
 				}
+				else if (specific == "Oil")
+				{
+					oilDebuff = true;
+					oilBurnTimer = 0;
+					
+					this.transform.Find ("OilDebuff").gameObject.SetActive(true);
+				}
+				else if (specific == "Fire" || specific == "Fireball")
+				{
+					fireDebuff = true;
+					
+					this.transform.Find ("FireDebuff").gameObject.SetActive(true);
+				}
+				else if (specific == "Surface Debris" || specific == "Underwater Debris")
+				{
+					if (oilDebuff == true)
+					{
+						if (debrisDebuffs < DEBRIS_STACKS_MAX)
+						{
+							this.transform.Find ("DebrisDebuff_" + debrisDebuffs).gameObject.SetActive(true);
+							
+							++debrisDebuffs;
+						}
+					}
 
-				Speed *= DEBRIS_SLOW;
+					Speed *= DEBRIS_SLOW;
+				}
+				
+				Debug.Log ("+ Debuff: " + specific);
 			}
-			
-			Debug.Log ("+ Debuff: " + specific);
 		}
 		else if (generic == "Powerup")
 		{
 			if (specific == "Turtle")
 			{
 				shellBuff = true;
-				
+				this.transform.Find ("ShellBuff").gameObject.SetActive(true);
+				trigger.transform.Find ("Turtle6v19_AnimateDone").Find("Sphere").renderer.enabled = false;
 			}
 			else if (specific == "Seaweed")
 			{
@@ -270,7 +315,7 @@ public class scrPlayer : MonoBehaviour
 			{
 				flyingBuff = true;
 				flyingTimer = 0;
-				
+				this.transform.Find ("FlyingBuff").gameObject.SetActive(true);
 			}
 			else if (specific == "Cleaner Fish")
 			{
