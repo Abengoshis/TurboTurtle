@@ -30,7 +30,8 @@ public class scrPlayer : MonoBehaviour
 	private float flyingTimer = 0;
 	private const float FLYING_DURATION = 5.0f;
 	private const float FLYING_HEIGHT = 5f;
-	
+	private const float FLYING_BOOST = 2;
+
 	private const float SEAWEED_HEAL = 10.0f;
 	
 	// Debuffs
@@ -55,8 +56,9 @@ public class scrPlayer : MonoBehaviour
 	private int lane = 1;
 	private float laneX;
 	private Transform wake;
-	
-	private float health = 100;
+
+	private const float HEALTH_MAX = 100;
+	private float health = HEALTH_MAX;
 	
 	private bool diving = false;
 	private bool diveInputPressed = false;
@@ -64,6 +66,10 @@ public class scrPlayer : MonoBehaviour
 	private const float DIVE_DEPTH = 10f;
 	private const float DIVE_TRANSITION_DURATION = 1.0f;
 	private const float DIVE_STRAFE_SLOW = 0.1f;
+
+	public Material[] AllCoralMaterials;
+	private Color[] originalCoralColours;
+	private float coralState = 1;
 	
 	// Use this for initialization
 	void Start ()
@@ -74,11 +80,30 @@ public class scrPlayer : MonoBehaviour
 		TimeSinceStart = 0;
 		laneX = scrSpawner.GetLaneX(lane);
 		wake = transform.parent.Find ("Wake");
+		originalCoralColours = new Color[AllCoralMaterials.Length];
+		for (int i = 0; i < AllCoralMaterials.Length; ++i)
+			originalCoralColours[i] = AllCoralMaterials[i].color;
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
+		// Set the coral's state to become progressively worse with the lowering health, but to also never get better.
+		float prevCoralState = coralState;
+		coralState = Mathf.Min (coralState, health / HEALTH_MAX);
+		// Check if the coral has changed.
+		if (coralState != prevCoralState)
+		{
+			// Bleach the corals.
+			for (int i = 0; i < AllCoralMaterials.Length; ++i)
+			{
+				AllCoralMaterials[i].color = Color.Lerp (new Color(1, 1, 1), originalCoralColours[i], coralState);
+			}
+ 		}
+
+		if (health <= 0)
+			Application.LoadLevel("menu");
+
 		if (Input.GetAxis ("Dive") != 0)
 		{
 			if (diveInputPressed == false && diveTransitionTimer == 0 || diveTransitionTimer == DIVE_TRANSITION_DURATION)
@@ -96,6 +121,7 @@ public class scrPlayer : MonoBehaviour
 		{
 			diving = false;
 			flyingTimer += Time.deltaTime;
+			ScrollSpeed *= FLYING_BOOST;
 			if (flyingTimer >= FLYING_DURATION)
 			{
 				flyingBuff = false;
@@ -105,7 +131,7 @@ public class scrPlayer : MonoBehaviour
 		
 		if (debrisDebuffs > 0)
 		{
-			float slow = DEBRIS_SLOW / debrisDebuffs;
+			float slow = DEBRIS_SLOW / (1 + debrisDebuffs / 3);
 			float dot = DEBRIS_DOT * debrisDebuffs;
 			
 			ScrollSpeed *= slow;
@@ -278,14 +304,14 @@ public class scrPlayer : MonoBehaviour
 					
 					this.transform.Find ("FireDebuff").gameObject.SetActive(true);
 				}
-				else if (specific == "Surface Debris" || specific == "Underwater Debris")
+				else if (specific == "SurfaceDebris" || specific == "UnderwaterDebris")
 				{
 					if (oilDebuff == true)
 					{
 						if (debrisDebuffs < DEBRIS_STACKS_MAX)
 						{
 							this.transform.Find ("DebrisDebuff_" + debrisDebuffs).gameObject.SetActive(true);
-							
+
 							++debrisDebuffs;
 						}
 					}
@@ -341,5 +367,11 @@ public class scrPlayer : MonoBehaviour
 		foreach (Transform t in trigger.transform.root.GetComponentsInChildren<Transform>())
 			t.gameObject.layer = LayerMask.NameToLayer("Ignore Player");
 		
+	}
+
+	void OnDestroy()
+	{
+		for (int i = 0; i < AllCoralMaterials.Length; ++i)
+			AllCoralMaterials[i].color = originalCoralColours[i];
 	}
 }

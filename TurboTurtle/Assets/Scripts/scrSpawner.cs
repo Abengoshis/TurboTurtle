@@ -196,19 +196,20 @@ public class scrSpawner : MonoBehaviour
 				else
 				{
 					// Instantiate a powerup at the spawn point.
-					int item = Random.Range (0, 4);
+					int item = Random.Range (0, 5);
 					switch (item)
 					{
 					case 0:
-						Instantiate(SeaweedPrefab, spawnPoints[s] + offset, rotation);
-						break;
 					case 1:
 						Instantiate(CleanerFishPrefab, spawnPoints[s] + offset, rotation);
 						break;
 					case 2:
-						Instantiate(FlyingFishPrefab, spawnPoints[s] + offset, rotation);
+						Instantiate(SeaweedPrefab, spawnPoints[s] + offset, rotation);
 						break;
 					case 3:
+						Instantiate(FlyingFishPrefab, spawnPoints[s] + offset, rotation);
+						break;
+					case 4:
 						Instantiate(TurtlePrefab, spawnPoints[s] + offset, rotation);
 						break;
 					}
