@@ -35,12 +35,12 @@ public class scrPlayer : MonoBehaviour
 	private const float SEAWEED_HEAL = 10.0f;
 	
 	// Debuffs
-	private const float NET_SLOW = 0.1f;
+	private const float NET_SLOW = 0;
 	
 	private byte debrisDebuffs = 0;
 	private const byte DEBRIS_STACKS_MAX = 3;
 	private const float DEBRIS_SLOW = 0.95f;
-	private const float DEBRIS_DOT = 0.2f;
+	private const float DEBRIS_DOT = 0.1f;
 	
 	private bool oilDebuff = false;
 	private float oilBurnTimer = 0;
@@ -67,10 +67,28 @@ public class scrPlayer : MonoBehaviour
 	private const float DIVE_TRANSITION_DURATION = 1.0f;
 	private const float DIVE_STRAFE_SLOW = 0.1f;
 
+	public Texture DebrisImage;
+	public Texture HealthImage;
 	public Material[] AllCoralMaterials;
 	private Color[] originalCoralColours;
 	private float coralState = 1;
-	
+
+	void OnGUI()
+	{
+		GUI.skin.box.normal.textColor = Color.white;
+		GUI.Box (new Rect(32, 32, 64, Screen.height - 64), "Health");
+		GUI.DrawTexture(new Rect(36, Mathf.Lerp (Screen.height - 68, 64, health / HEALTH_MAX), 56, Mathf.Lerp (0, Screen.height - 102, health / HEALTH_MAX)), HealthImage);
+		GUI.Box (new Rect(Screen.width / 2 - 128 , 16, 256, 40), "Distance Travelled\n" + (int)(DistanceSinceStart / 20) + "m");
+		float speedFactor = (ScrollSpeed - SCROLL_SPEED_MIN) / (SCROLL_SPEED_MAX - SCROLL_SPEED_MIN);
+		GUI.Box (new Rect(Screen.width / 2 - 128 , Screen.height - 56, 256, 40), "Speed\n" + (speedFactor > 0.75f ? "VERY FAST" : speedFactor > 0.5f ? "FAST" : speedFactor > 0.25f ? "AVERAGE" : "SLOW"));
+
+
+		for (int i = 0; i < debrisDebuffs; ++i)
+		{
+			GUI.DrawTexture(new Rect(Screen.width - 160, Screen.height / 2 + 96 - i * 160, i + 128, 128), DebrisImage);
+		}
+	}
+
 	// Use this for initialization
 	void Start ()
 	{
@@ -161,7 +179,8 @@ public class scrPlayer : MonoBehaviour
 				if (diveTransitionTimer == DIVE_TRANSITION_DURATION)
 				{
 					fireDebuff = false;
-					
+					audio.Stop ();
+
 					this.transform.Find ("FireDebuff").gameObject.SetActive(false);
 				}
 				
@@ -289,6 +308,7 @@ public class scrPlayer : MonoBehaviour
 			{
 				if (specific == "Net")
 				{
+					Debug.Log ("Nett");
 					Speed *= NET_SLOW;
 				}
 				else if (specific == "Oil")
@@ -301,6 +321,7 @@ public class scrPlayer : MonoBehaviour
 				else if (specific == "Fire" || specific == "Fireball")
 				{
 					fireDebuff = true;
+					audio.Play ();
 					
 					this.transform.Find ("FireDebuff").gameObject.SetActive(true);
 				}
@@ -316,10 +337,10 @@ public class scrPlayer : MonoBehaviour
 						}
 					}
 
-					Speed *= DEBRIS_SLOW;
+					Speed *= DEBRIS_SLOW / 4;
 				}
 				
-				Debug.Log ("+ Debuff: " + specific);
+				//Debug.Log ("+ Debuff: " + specific);
 			}
 		}
 		else if (generic == "Powerup")
@@ -357,7 +378,7 @@ public class scrPlayer : MonoBehaviour
 				}
 			}
 			
-			Debug.Log ("+ Buff: " + specific);
+			//Debug.Log ("+ Buff: " + specific);
 		}
 		
 		// Ensure the other object does not loop when it goes out of the world.

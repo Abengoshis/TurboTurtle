@@ -143,8 +143,6 @@ public class scrSpawner : MonoBehaviour
 				RaycastHit hit;
 				if (Physics.Raycast(new Ray(new Vector3(u.position.x, -30, u.position.z), Vector3.down), out hit, 100, 1 << LayerMask.NameToLayer("Water")))
 					u.position = hit.point;
-				else
-					Debug.Log ("what");
 			}
 		}
 	}
@@ -154,7 +152,7 @@ public class scrSpawner : MonoBehaviour
 		// Set the amount to spawn to a random amount between the amount dictated by the distance, with a random variance, clamped to the minimum and maximum amounts.
 		int spawnAmount = Random.Range (SPAWN_AMOUNT_MIN, Mathf.Clamp(Mathf.RoundToInt (Mathf.Lerp (SPAWN_AMOUNT_MIN, SPAWN_AMOUNT_MAX, scrPlayer.DistanceFactor)) + Random.Range(-SPAWN_AMOUNT_VARIANCE, SPAWN_AMOUNT_VARIANCE + 1), SPAWN_AMOUNT_MIN, SPAWN_AMOUNT_MAX) + 1);
 		
-		Debug.Log ("Spawning " + spawnAmount + " objects.");
+		//Debug.Log ("Spawning " + spawnAmount + " objects.");
 		
 		// Copy the spawn positions to a list.
 		List<Vector3> spawnPoints = new List<Vector3>();
@@ -252,7 +250,7 @@ public class scrSpawner : MonoBehaviour
 			Instantiate (TwoBoatsOneNetPrefab, new Vector3(0, 0, scrWorldScroll.Z_INSTANTIATE), Quaternion.identity);
 		}
 		
-		Debug.Log ("Spawning special object.");
+		//Debug.Log ("Spawning special object.");
 	}
 	
 	void SpawnScenery()
@@ -264,6 +262,6 @@ public class scrSpawner : MonoBehaviour
 		if (Random.Range (0, 2) == 0)
 			scenery.transform.localScale = new Vector3(-1, 1, 1);
 		
-		Debug.Log ("Spawning underwater object.");
+		//Debug.Log ("Spawning underwater object.");
 	}
 }
