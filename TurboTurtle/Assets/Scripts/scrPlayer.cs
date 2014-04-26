@@ -40,7 +40,7 @@ public class scrPlayer : MonoBehaviour
 	private byte debrisDebuffs = 0;
 	private const byte DEBRIS_STACKS_MAX = 3;
 	private const float DEBRIS_SLOW = 0.95f;
-	private const float DEBRIS_DOT = 0.1f;
+	private const float DEBRIS_DOT = 0.05f;
 	
 	private bool oilDebuff = false;
 	private float oilBurnTimer = 0;
@@ -297,7 +297,7 @@ public class scrPlayer : MonoBehaviour
 		string specific = trigger.transform.root.name.Remove(trigger.transform.root.name.IndexOf('('));
 		string generic = trigger.transform.root.tag;
 		
-		if (generic == "Obstacle")
+		if (generic == "Obstacle" && flyingBuff == false)
 		{
 			if (shellBuff == true)
 			{
@@ -306,19 +306,20 @@ public class scrPlayer : MonoBehaviour
 			}
 			else
 			{
-				if (specific == "Net")
+				if (specific == "Fishing Boat" || specific == "Double Fishing Boat")
 				{
-					Debug.Log ("Nett");
 					Speed *= NET_SLOW;
+					Debug.Log ("boat");
 				}
-				else if (specific == "Oil")
+				else if (specific == "Oil" || specific == "Fire")
 				{
 					oilDebuff = true;
 					oilBurnTimer = 0;
 					
 					this.transform.Find ("OilDebuff").gameObject.SetActive(true);
 				}
-				else if (specific == "Fire" || specific == "Fireball")
+
+				if (specific == "Fire" || specific == "Fireball")
 				{
 					fireDebuff = true;
 					audio.Play ();
@@ -360,9 +361,12 @@ public class scrPlayer : MonoBehaviour
 			}
 			else if (specific == "Flying Fish")
 			{
-				flyingBuff = true;
-				flyingTimer = 0;
-				this.transform.Find ("FlyingBuff").gameObject.SetActive(true);
+				if (flyingBuff == false)
+				{
+					flyingBuff = true;
+					flyingTimer = 0;
+					this.transform.Find ("FlyingBuff").gameObject.SetActive(true);
+				}
 			}
 			else if (specific == "Cleaner Fish")
 			{
