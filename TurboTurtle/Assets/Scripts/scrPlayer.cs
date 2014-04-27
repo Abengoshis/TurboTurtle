@@ -39,8 +39,8 @@ public class scrPlayer : MonoBehaviour
 	
 	private byte debrisDebuffs = 0;
 	private const byte DEBRIS_STACKS_MAX = 3;
-	private const float DEBRIS_SLOW = 0.95f;
-	private const float DEBRIS_DOT = 0.05f;
+	private const float DEBRIS_SLOW = 0.97f;
+	private const float DEBRIS_DOT = 0.025f;
 	
 	private bool oilDebuff = false;
 	private float oilBurnTimer = 0;
@@ -79,7 +79,7 @@ public class scrPlayer : MonoBehaviour
 		GUI.Box (new Rect(32, 32, 64, Screen.height - 64), "Health");
 		GUI.DrawTexture(new Rect(36, Mathf.Lerp (Screen.height - 68, 64, health / HEALTH_MAX), 56, Mathf.Lerp (0, Screen.height - 102, health / HEALTH_MAX)), HealthImage);
 		GUI.Box (new Rect(Screen.width / 2 - 128 , 16, 256, 40), "Distance Travelled\n" + (int)(DistanceSinceStart / 20) + "m");
-		float speedFactor = (ScrollSpeed - SCROLL_SPEED_MIN) / (SCROLL_SPEED_MAX - SCROLL_SPEED_MIN);
+		float speedFactor = (Speed - SCROLL_SPEED_MIN) / (SCROLL_SPEED_MAX - SCROLL_SPEED_MIN);
 		GUI.Box (new Rect(Screen.width / 2 - 128 , Screen.height - 56, 256, 40), "Speed\n" + (speedFactor > 0.75f ? "VERY FAST" : speedFactor > 0.5f ? "FAST" : speedFactor > 0.25f ? "AVERAGE" : "SLOW"));
 
 
@@ -334,6 +334,9 @@ public class scrPlayer : MonoBehaviour
 						{
 							this.transform.Find ("DebrisDebuff_" + debrisDebuffs).gameObject.SetActive(true);
 
+
+							Destroy (trigger.gameObject);
+
 							++debrisDebuffs;
 						}
 					}
@@ -372,8 +375,9 @@ public class scrPlayer : MonoBehaviour
 			{
 				if (debrisDebuffs > 0)
 				{
-					this.transform.Find ("DebrisDebuff_" + debrisDebuffs).gameObject.SetActive(true);
+					Debug.Log ("DebrisDebuff_" + debrisDebuffs);
 					--debrisDebuffs;
+					this.transform.Find ("DebrisDebuff_" + debrisDebuffs).gameObject.SetActive(false);
 				}
 				else
 				{
