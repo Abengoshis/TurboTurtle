@@ -184,11 +184,11 @@ public class scrSpawner : MonoBehaviour
 				{
 					if (Random.Range (0, 2) == 0)
 					{
-						Instantiate(FirePrefab, spawnPoints[s] + offset, rotation);
+						Instantiate(FirePrefab, spawnPoints[s] + offset, FirePrefab.transform.rotation);
 					}
 					else
 					{
-						Instantiate(OilPrefab, spawnPoints[s] + offset, rotation);
+						Instantiate(OilPrefab, spawnPoints[s] + offset, OilPrefab.transform.rotation);
 					}
 				}
 				else
