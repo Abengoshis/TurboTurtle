@@ -299,6 +299,9 @@ public class scrPlayer : MonoBehaviour
 		
 		if (generic == "Obstacle" && flyingBuff == false)
 		{
+			wake.audio.pitch = Random.Range (0.8f, 1.2f);
+			wake.audio.Play ();
+
 			if (shellBuff == true)
 			{
 				shellBuff = false;
